@@ -376,6 +376,7 @@ fn main() {
         case_sensitive: false,
         require_literal_separator: true,
         require_literal_leading_dot: true,
+        sort_output_descending: true,
     };
     assert_eq!(glob_with_vec("i/**/*a*", options), Vec::<PathBuf>::new());
     assert_eq!(glob_with_vec("i/**/*c*", options), Vec::<PathBuf>::new());

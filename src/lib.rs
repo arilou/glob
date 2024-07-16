@@ -47,6 +47,7 @@
 //!     case_sensitive: false,
 //!     require_literal_separator: false,
 //!     require_literal_leading_dot: false,
+//!     sort_output_descending: true,
 //! };
 //! for entry in glob_with("local/*a*", options).unwrap() {
 //!     if let Ok(path) = entry {
@@ -1043,7 +1044,9 @@ fn fill_todo<T: GlobFs>(
                         children
                             .retain(|x| !x.file_name().unwrap().to_str().unwrap().starts_with("."));
                     }
-                    children.sort_by(|p1, p2| p2.file_name().cmp(&p1.file_name()));
+                    if options.sort_output_descending {
+                        children.sort_by(|p1, p2| p2.file_name().cmp(&p1.file_name()));
+                    }
                     todo.extend(children.into_iter().map(|x| Ok((x, idx))));
 
                     // Matching the special directory entries . and .. that
@@ -1158,6 +1161,13 @@ pub struct MatchOptions {
     /// conventionally considered hidden on Unix systems and it might be
     /// desirable to skip them when listing files.
     pub require_literal_leading_dot: bool,
+
+    /// This option causes the list of files to be sorted by their names in descending order. This
+    /// is useful when an ordered output is required for further processing or for user
+    /// presentation. The sorting is done lexicographically based on the file name. This option
+    /// should be enabled when the order of files affects the outcome of the operation or when
+    /// consistent ordering is needed for tests or user output.
+    pub sort_output_descending: bool,
 }
 
 impl MatchOptions {
@@ -1171,7 +1181,8 @@ impl MatchOptions {
     /// MatchOptions {
     ///     case_sensitive: true,
     ///     require_literal_separator: false,
-    ///     require_literal_leading_dot: false
+    ///     require_literal_leading_dot: false,
+    ///     sort_output_descending: true
     /// }
     /// ```
     ///
@@ -1184,6 +1195,7 @@ impl MatchOptions {
             case_sensitive: true,
             require_literal_separator: false,
             require_literal_leading_dot: false,
+            sort_output_descending: true,
         }
     }
 }
@@ -1439,6 +1451,7 @@ mod test {
             case_sensitive: false,
             require_literal_separator: false,
             require_literal_leading_dot: false,
+            sort_output_descending: true,
         };
 
         assert!(pat.matches_with("aBcDeFg", options));
@@ -1456,11 +1469,13 @@ mod test {
             case_sensitive: false,
             require_literal_separator: false,
             require_literal_leading_dot: false,
+            sort_output_descending: true,
         };
         let options_case_sensitive = MatchOptions {
             case_sensitive: true,
             require_literal_separator: false,
             require_literal_leading_dot: false,
+            sort_output_descending: true,
         };
 
         assert!(pat_within.matches_with("a", options_case_insensitive));
@@ -1478,11 +1493,13 @@ mod test {
             case_sensitive: true,
             require_literal_separator: true,
             require_literal_leading_dot: false,
+            sort_output_descending: true,
         };
         let options_not_require_literal = MatchOptions {
             case_sensitive: true,
             require_literal_separator: false,
             require_literal_leading_dot: false,
+            sort_output_descending: true,
         };
 
         assert!(Pattern::new("abc/def")
@@ -1518,11 +1535,13 @@ mod test {
             case_sensitive: true,
             require_literal_separator: false,
             require_literal_leading_dot: true,
+            sort_output_descending: true,
         };
         let options_not_require_literal_leading_dot = MatchOptions {
             case_sensitive: true,
             require_literal_separator: false,
             require_literal_leading_dot: false,
+            sort_output_descending: true,
         };
 
         let f = |options| {
